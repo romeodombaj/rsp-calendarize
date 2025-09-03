@@ -16,12 +16,10 @@ export default function Caledar({ selectedDate, setSelectedDate }) {
     const date = new Date(year, month, 1);
     const days = [];
 
-    // Weekday of first day (0 = Sunday, 1 = Monday, …)
     const firstDayIndex = date.getDay();
 
-    // Fill empty slots for the first week
     for (let i = 0; i < firstDayIndex; i++) {
-      days.push(null); // or empty string
+      days.push(null);
     }
 
     while (date.getMonth() === month) {
