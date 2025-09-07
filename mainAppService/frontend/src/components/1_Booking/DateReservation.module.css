@@ -18,7 +18,7 @@
 }
 
 .header {
-  color: rgb(214, 143, 12);
+  color: rgb(var(--accent-color));
   font-size: 24px;
   display: flex;
   flex-direction: row;
@@ -39,7 +39,7 @@
 }
 
 .highlight {
-  color: rgb(214, 143, 12);
+  color: rgb(var(--accent-color));
 }
 
 @keyframes appear {

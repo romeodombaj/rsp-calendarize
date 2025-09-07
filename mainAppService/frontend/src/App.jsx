@@ -1,31 +1,16 @@
+import { Route, Router } from "react-router-dom";
+import Booking from "./components/1_Booking/Booking";
+import CreateUser from "./components/0_User_managment/CreateUser";
 import styles from "./App.module.css";
-import { useState } from "react";
-import Calendar from "./components/Calendar";
-import DateReservation from "./components/DateReservation";
-import useBookingConnection from "./hooks/use-booking-connection";
-
-const userID = crypto.randomUUID();
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [selectedDate, setSelectedDate] = useState();
-  const { messages, sendMessage } = useBookingConnection(userID);
-
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        <Calendar
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-        />
-        {selectedDate && (
-          <DateReservation
-            selectedDate={selectedDate}
-            messages={messages}
-            sendMessage={sendMessage}
-            userId={userID}
-          />
-        )}
+        <Router>
+          <Route path="/" element={<Booking />} />
+          <Route path="/create-user" element={<CreateUser />} />
+        </Router>
       </div>
     </div>
   );
