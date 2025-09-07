@@ -1,10 +1,7 @@
 import { useState } from "react";
 import styles from "./CreateUser.module.css";
-import axios from "axios";
-import { useNavigate } from "react-router";
 
 export default function CreateUser() {
-  const navigate = useNavigate();
   const [name, setName] = useState();
   const [email, setEmail] = useState();
 
@@ -18,21 +15,10 @@ export default function CreateUser() {
     setEmail(value);
   };
 
-  const onSubmit = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
 
-    if (!name || !email) return;
-
-    const result = await axios.post("http://localhost:5000/", {
-      name: name,
-      email: email,
-    });
-
-    console.log(result);
-
-    if (result) {
-      navigate("/");
-    }
+    
   };
 
   return (
