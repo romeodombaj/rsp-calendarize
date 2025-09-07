@@ -28,6 +28,20 @@
   font-weight: 600;
 }
 
+.list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  color: black;
+  flex: 1;
+}
+
+.highlight {
+  color: rgb(214, 143, 12);
+}
+
 @keyframes appear {
   0% {
     height: 0;

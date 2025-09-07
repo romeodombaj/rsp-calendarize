@@ -1,6 +1,11 @@
 import styles from "./DateReservation.module.css";
 
-export default function DateReservation({ selectedDate }) {
+export default function DateReservation({
+  selectedDate,
+  messages,
+  sendMessage,
+  userId,
+}) {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -11,6 +16,15 @@ export default function DateReservation({ selectedDate }) {
               month: "long",
               year: "numeric",
             })}
+        </div>
+
+        <div className={styles.list}>
+          {messages?.map((el, i) => (
+            <div key={i} className={`${el.id === userId && styles.highlight}`}>
+              {el.message}
+            </div>
+          ))}
+          <div onClick={() => sendMessage("New message")}>ADD MESSAGE</div>
         </div>
       </div>
     </div>
