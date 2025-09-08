@@ -1,11 +1,14 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 from db import users_table
 from uuid import uuid4
 from routes.users import router as users_router
+import requests
+import json
+
 
 app = FastAPI()
 
@@ -27,6 +30,8 @@ app.mount("/assets", StaticFiles(directory=frontend_path / "assets"), name="asse
 app.include_router(users_router, prefix="/api")
 
 
+BOOKING_SERVICE_URL = "http://localhost:5002/"
+
 clients = []
 
 # bookings websocket connection 
@@ -34,21 +39,36 @@ clients = []
 async def websocket_endpoint(websocket: WebSocket):
 
     # dohvaca se cookie "user_id"
-    user_id = websocket.cookies.get("user_id")
+    #user_id = websocket.cookies.get("user_id")
 
     # ako cookie ne postoji generira se novi used id i salje koriniku u obliku httpOnly cookiea
-    if not user_id:
-        user_id = str(uuid4())
-        await websocket.accept(headers=[("Set-Cookie", f"user_id={user_id}; Path=/; HttpOnly; SameSite=None; ")])
-        print("New Client Connected")
-    else:
-        await websocket.accept()
-        print("Existing Client Connected")
+    #if not user_id:
+     #   user_id = str(uuid4())
+      #  await websocket.accept(headers=[("Set-Cookie", f"user_id={user_id}; Path=/; HttpOnly; SameSite=None; ")])
+       # print("New Client Connected")
+   # else:
+    #    print("Existing Client Connected")
 
+
+    await websocket.accept()
+
+    try:
+        response = requests.get(BOOKING_SERVICE_URL)
+        response.raise_for_status()
+        future_bookings = response.json().get("appointments", [])
+    except requests.RequestException as e:
+        future_bookings = []
+        print("Error fetching bookings:", e)
+
+    await websocket.send_text(json.dumps({
+        "type": "all_bookings",
+        "data": future_bookings
+    }))
+        
+    print("FUTTURE BOOGKINS")
+    print(future_bookings)
 
     clients.append(websocket)
-
-    #print("New Client: ", websocket)
     
     try:
         while True:

@@ -9,7 +9,7 @@ const userID = crypto.randomUUID();
 function Booking() {
   const [count, setCount] = useState(0);
   const [selectedDate, setSelectedDate] = useState();
-  const { messages, sendMessage } = useBookingConnection(userID);
+  const { bookings, sendMessage } = useBookingConnection(userID);
 
   return (
     <div className={styles.container}>
@@ -21,7 +21,7 @@ function Booking() {
         {selectedDate && (
           <DateReservation
             selectedDate={selectedDate}
-            messages={messages}
+            bookings={bookings}
             sendMessage={sendMessage}
             userId={userID}
           />

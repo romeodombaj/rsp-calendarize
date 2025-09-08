@@ -36,10 +36,52 @@
   justify-content: flex-start;
   color: black;
   flex: 1;
+  gap: 5px;
+  padding: 0 5px;
 }
 
 .highlight {
   color: rgb(var(--accent-color));
+}
+
+.appointment {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: rgb(var(--light-color));
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.appointment-book {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+  opacity: 0;
+  backdrop-filter: blur(0px);
+  background-color: rgb(var(--accent-color), 0);
+  transform: translateX(100%);
+  font-weight: 600;
+  
+}
+
+.appointment:hover .appointment-book {
+  opacity: 1;
+  backdrop-filter: blur(5px);
+  background-color: rgb(var(--accent-color), 0.4);
+  transform: translateX(0);
 }
 
 @keyframes appear {

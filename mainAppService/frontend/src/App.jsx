@@ -9,6 +9,9 @@ function ProtectedRoute() {
 
   console.log("USER ID IN PROTECTION: ", userId);
 
+  // for testing
+  return <Outlet />;
+
   return userId ? <Outlet /> : <Navigate to="/create-user" />;
 }
 
