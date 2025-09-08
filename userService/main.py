@@ -6,6 +6,7 @@ from pathlib import Path
 from db import users_table
 from uuid import uuid4
 from models import UserCreate
+from botocore.exceptions import BotoCoreError, ClientError
 
 app = FastAPI()
 
@@ -21,6 +22,23 @@ app.add_middleware(
 
 frontend_path = Path(__file__).parent / "frontend" / "dist"
 
+@app.get("/{user_id}")
+async def create_user(user_id: str):
+    try:
+        response = users_table.get_item(Key={"user_id": user_id})    
+        user = response.get("Item")  # will be None if not found
+
+        if user:
+            print("User found:", user)
+            return {"status": "success", "user": user}
+
+        else:
+            print("User not found")
+            return {"status": "not_found"}
+
+    except (BotoCoreError, ClientError) as e:
+        print("Error fetching user:", e)
+        return {"status": "error", "message": str(e)}
 
 @app.post("/")
 async def create_user(user: UserCreate, response: Response):
@@ -38,6 +56,12 @@ async def create_user(user: UserCreate, response: Response):
     print(user_id)
     #response.set_cookie(key="token", value=user_id, httponly=True)
     return {"user_id": user_id}
+
+
+
+
+    
+
 
 
 

@@ -3,12 +3,13 @@ import styles from "./CreateUser.module.css";
 import axios from "axios";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../store/AuthProvider";
+import useAuthUser from "../../hooks/use-auth-user";
 
 export default function CreateUser() {
-  const navigate = useNavigate();
   const [name, setName] = useState();
   const [email, setEmail] = useState();
-  const { setUserId } = useAuth();
+
+  const { createUser } = useAuthUser();
 
   const onNameChange = (e) => {
     const value = e.target.value;
@@ -23,27 +24,7 @@ export default function CreateUser() {
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !email) return;
-
-    const result = await axios.post(
-      "http://localhost:5000/api/users/",
-      {
-        name: name,
-        email: email,
-      },
-      {
-        withCredentials: true,
-      }
-    );
-
-    console.log("GETTING THE RESULTS");
-
-    console.log(result);
-
-    if (result?.status === 200) {
-      setUserId(result.data.user_id);
-      navigate("/");
-    }
+    await createUser({ name, email });
   };
 
   return (
