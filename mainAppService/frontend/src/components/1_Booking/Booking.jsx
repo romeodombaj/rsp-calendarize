@@ -9,7 +9,7 @@ const userID = crypto.randomUUID();
 function Booking() {
   const [count, setCount] = useState(0);
   const [selectedDate, setSelectedDate] = useState();
-  const { bookings, sendMessage } = useBookingConnection(userID);
+  const { bookings, bookAppointment } = useBookingConnection(userID);
 
   return (
     <div className={styles.container}>
@@ -22,7 +22,7 @@ function Booking() {
           <DateReservation
             selectedDate={selectedDate}
             bookings={bookings}
-            sendMessage={sendMessage}
+            bookAppointment={bookAppointment}
             userId={userID}
           />
         )}

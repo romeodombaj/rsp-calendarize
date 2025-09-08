@@ -65,17 +65,44 @@ async def websocket_endpoint(websocket: WebSocket):
         "data": future_bookings
     }))
         
-    print("FUTTURE BOOGKINS")
-    print(future_bookings)
-
     clients.append(websocket)
     
     try:
         while True:
             data = await websocket.receive_text()
 
-            for client in clients:
-                await client.send_text(data)
+            print("message received")
+            print(data)
+
+            parsed_data = json.loads(data) # convert string → dict
+            print(parsed_data["type"])  
+
+            if parsed_data["type"] == "book":
+                print("This is new booking")
+
+                payload = {
+                    "user_id": parsed_data["user_id"],
+                    "booking_id": parsed_data["appointment_id"]
+                }
+
+                try:
+                    response = requests.put(f'{BOOKING_SERVICE_URL}book/', json=payload)
+                    response.raise_for_status()
+                    print(response.json())
+
+                    updateData = {
+                        "booked_by": parsed_data["user_id"],
+                        "appointment_id":parsed_data["appointment_id"],
+                        "type": "new_booking"
+                    }
+
+                    for client in clients:
+                        await client.send_text(json.dumps(updateData))
+
+                except requests.RequestException as e:
+                    print("Error fetching bookings:", e)
+
+            
     except WebSocketDisconnect:
         clients.remove(websocket)
 

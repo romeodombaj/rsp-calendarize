@@ -43,14 +43,15 @@ async def get_future_appointments():
 @app.put("/book")
 async def book_appointment(booking: dict, response: Response):
     print("IN Booking SERVICE")
+    print("BOOKING")
 
     print(booking)
     try:
         booking_table.update_item(
-            Key={"id": booking.booking_id},
+            Key={"id": booking["booking_id"]},
             UpdateExpression="SET #s = :booked_by", 
             ExpressionAttributeNames={"#s": "booked_by"},  
-            ExpressionAttributeValues={":booked_by": booking.user_id},
+            ExpressionAttributeValues={":booked_by": booking["user_id"]},
             ReturnValues="UPDATED_NEW"  
         )
     except Exception as e:

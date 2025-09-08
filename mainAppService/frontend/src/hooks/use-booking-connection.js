@@ -15,10 +15,20 @@ export default function useBookingConnection(userId = undefined) {
         console.log("WEBSOCKER MESSAGE");
         console.log(message);
 
-        if (message.type === "all_bookings") {
-          setBookings(message.data);
-        } else {
-          setBookings((prev) => [...prev, message]);
+        switch (message?.type) {
+          case "all_bookings":
+            setBookings(message.data);
+            break;
+
+          case "new_booking":
+            setBookings((prev) =>
+              prev.map((booking) =>
+                booking.id === message.appointment_id
+                  ? { ...booking, booked_by: message.user_id }
+                  : booking
+              )
+            );
+            break;
         }
       };
 
@@ -39,5 +49,16 @@ export default function useBookingConnection(userId = undefined) {
     if (ws) ws.send(JSON.stringify({ id: userId, message }));
   };
 
-  return { bookings, sendMessage };
+  const bookAppointment = (appointment) => {
+    if (ws)
+      ws.send(
+        JSON.stringify({
+          type: "book",
+          user_id: userId,
+          appointment_id: appointment.id,
+        })
+      );
+  };
+
+  return { bookings, sendMessage, bookAppointment };
 }
