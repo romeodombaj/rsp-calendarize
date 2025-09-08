@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Response, status
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 from db import users_table
@@ -24,6 +24,7 @@ frontend_path = Path(__file__).parent / "frontend" / "dist"
 
 @app.post("/")
 async def create_user(user: UserCreate, response: Response):
+    print("IN USER SERVICE")
     user_id = str(uuid4())
 
     userRow = {
@@ -32,19 +33,12 @@ async def create_user(user: UserCreate, response: Response):
         "email": user.email
     }
 
-    users_table.put_item(Item=userRow)
+    users_table.put_item(Item=userRow)    
+    
+    print(user_id)
+    #response.set_cookie(key="token", value=user_id, httponly=True)
+    return {"user_id": user_id}
 
-    response.set_cookie(
-        key="user_id",
-        value=user_id,
-        httponly=True,     
-        secure=False,       
-        samesite="lax"      
-    )
-
-    print("NEW USER CREATED")
-
-    return Response(status_code=status.HTTP_200_OK)
 
 
 

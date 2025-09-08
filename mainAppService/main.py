@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 from db import users_table
 from uuid import uuid4
-#from routes import route
+from routes.users import router as users_router
 
 app = FastAPI()
 
@@ -24,7 +24,7 @@ frontend_path = Path(__file__).parent / "frontend" / "dist"
 # serving static files
 app.mount("/assets", StaticFiles(directory=frontend_path / "assets"), name="assets")
 
-#app.include_router(route.router, prefix="/route")
+app.include_router(users_router, prefix="/api")
 
 
 clients = []
@@ -60,10 +60,11 @@ async def websocket_endpoint(websocket: WebSocket):
         clients.remove(websocket)
 
 
-@app.get("/api/users")
-async def get_users():
-    response = users_table.scan()
-    return response.get("Items", [])
+
+#@app.get("/api/users")
+#async def get_users():
+ #   response = users_table.scan()
+  #  return response.get("Items", [])
 
 # serving frontend
 @app.get("/{path:path}")
