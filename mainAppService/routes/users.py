@@ -1,75 +1,64 @@
 import requests
 from fastapi.responses import JSONResponse
-from fastapi import APIRouter, Cookie, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 from models import UserCreate
-
+import aiohttp
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-USER_SERVICE_URL = "http://localhost:5001/"
+USER_SERVICE_URL = "http://localhost:5001/users/"
 
 
-@router.post("/authenticate")
+@router.get("/authenticate")
 async def authenticate(request: Request):
-    print("CAME TO USERS")
-
-    user_id = request.cookies.get("user_id")
-
-
-    print(user_id)
-
-    if not user_id:
-        raise HTTPException(status_code=400, detail="Missing user_id")
-
-    print("Does this execute here?")
-
     try:
-        response = requests.get(f"{USER_SERVICE_URL}{user_id}")
-        response.raise_for_status()
-    except requests.RequestException as e:
-        return JSONResponse(content={"status": "error", "message": str(e)}, status_code=500)
+        user_id = request.cookies.get("user_id")
 
-    user_data = response.json()
+        if not user_id:
+            raise HTTPException(status_code=400, detail="Missing user_id")
 
-    print(user_data)
-    user_id = user_data.get("user", {}).get("id") 
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{USER_SERVICE_URL}{user_id}") as response:
+                response.raise_for_status()
+                user_data = await response.json()
 
-    print(user_id)
 
-    resp = JSONResponse(content={"status": "success", "user_id": user_id})
+        user_id = user_data.get("user", {}).get("id") 
+        
+        return {"status": "success", "user_id": user_id}
     
-    #resp.set_cookie(
-     #   key="user_id",
-      #  value=user_id,
-       # httponly=True,
-        #secure=False,  
-        #samesite="lax"
-    #)
+    except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e)) 
 
-    return resp
+
 
 @router.post("/")
 async def create_user(user: UserCreate):
-    print("CAME TO USERS")
-
     try:
         response = requests.post(USER_SERVICE_URL, json=user.dict())
         response.raise_for_status()
-    except requests.RequestException as e:
-        return JSONResponse(content={"status": "error", "message": str(e)}, status_code=500)
 
-    user_data = response.json()
-    user_id = user_data.get("user_id")
+        async with aiohttp.ClientSession() as session:
+            async with session.post(USER_SERVICE_URL, json=user.dict()) as response:
+                response.raise_for_status()
+                user_data = await response.json()
+    
+        user_id = user_data.get("user_id")
 
-    resp = JSONResponse(content={"status": "success", "user": user_data})
-    resp.set_cookie(
-        key="user_id",
-        value=user_id,
-        httponly=True,
-        secure=False,  
-        samesite="lax"
-    )
+        resp = JSONResponse(content={"status": "success", "user": user_data})
+        
+        resp.set_cookie(
+            key="user_id",
+            value=user_id,
+            httponly=True,
+            secure=False,  
+            samesite="lax"
+        )
 
-    return resp
+        return resp
+
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e)) 
 
 

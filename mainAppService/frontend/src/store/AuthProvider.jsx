@@ -20,13 +20,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const authenticateUser = async () => {
       try {
-        const result = await axios.post(
-          `${base_url}authenticate`,
-          {},
-          {
-            withCredentials: true,
-          }
-        );
+        const result = await axios.get(`${base_url}authenticate`, {
+          withCredentials: true,
+        });
 
         if (result?.status === 200) {
           setUserId(result.data.user_id);
