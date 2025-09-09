@@ -1,6 +1,6 @@
 import requests
 from fastapi.responses import JSONResponse
-from fastapi import APIRouter, Cookie, HTTPException
+from fastapi import APIRouter, Cookie, HTTPException, Request
 from models import UserCreate
 
 
@@ -10,33 +10,41 @@ USER_SERVICE_URL = "http://localhost:5001/"
 
 
 @router.post("/authenticate")
-async def authenticate(user_id: str = Cookie(None)):
+async def authenticate(request: Request):
     print("CAME TO USERS")
+
+    user_id = request.cookies.get("user_id")
+
 
     print(user_id)
 
     if not user_id:
-        print("NO COOKIE")
         raise HTTPException(status_code=400, detail="Missing user_id")
 
+    print("Does this execute here?")
+
     try:
-        response = requests.post(f"{USER_SERVICE_URL}{user_id}")
+        response = requests.get(f"{USER_SERVICE_URL}{user_id}")
         response.raise_for_status()
     except requests.RequestException as e:
         return JSONResponse(content={"status": "error", "message": str(e)}, status_code=500)
 
     user_data = response.json()
-    user_id = user_data.get("user_id")
+
+    print(user_data)
+    user_id = user_data.get("user", {}).get("id") 
+
+    print(user_id)
 
     resp = JSONResponse(content={"status": "success", "user_id": user_id})
     
-    resp.set_cookie(
-        key="user_id",
-        value=user_id,
-        httponly=True,
-        secure=False,  
-        samesite="lax"
-    )
+    #resp.set_cookie(
+     #   key="user_id",
+      #  value=user_id,
+       # httponly=True,
+        #secure=False,  
+        #samesite="lax"
+    #)
 
     return resp
 

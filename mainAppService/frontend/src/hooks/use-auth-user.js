@@ -42,35 +42,7 @@ export default function useAuthUser() {
     }
   };
 
-  const authenticateUser = async () => {
-    setIsLoading(true);
-
-    try {
-      const result = await axios.post(
-        `${base_url}authenticate`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
-
-      console.log("RESULT");
-      console.log(result);
-
-      if (result?.status === "success") {
-        setUserId(result.data.user_id);
-        navigate("/");
-      }
-    } catch (err) {
-      console.log("Could not Authentica user");
-      console.log(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return {
-    authenticateUser,
     createUser,
     isLoading,
   };

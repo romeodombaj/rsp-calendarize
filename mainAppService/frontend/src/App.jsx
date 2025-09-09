@@ -5,26 +5,16 @@ import styles from "./App.module.css";
 import { useAuth } from "./store/AuthProvider";
 import axios from "axios";
 import useAuthUser from "./hooks/use-auth-user";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function ProtectedRoute() {
-  const { userId } = useAuth();
-  const { authenticateUser } = useAuthUser();
+  const { userId, isLoading } = useAuth();
 
-  console.log("USER ID IN PROTECTION: ", userId);
+  if (isLoading) {
+    return null;
+  }
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      await authenticateUser();
-    };
-
-    if (!userId) checkAuth();
-  }, [authenticateUser]);
-
-  console.log("HERE");
-
-  // for testing
-  //return <Outlet />;
+  console.log(userId);
 
   return userId ? <Outlet /> : <Navigate to="/create-user" />;
 }

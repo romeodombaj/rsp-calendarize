@@ -23,10 +23,14 @@ app.add_middleware(
 frontend_path = Path(__file__).parent / "frontend" / "dist"
 
 @app.get("/{user_id}")
-async def create_user(user_id: str):
+async def get_user(user_id: str):
+
+    print("WE AR EGETTING A SINGLE USER")
+    print(user_id)
+
     try:
-        response = users_table.get_item(Key={"user_id": user_id})    
-        user = response.get("Item")  # will be None if not found
+        response = users_table.get_item(Key={"id": user_id})    
+        user = response.get("Item") 
 
         if user:
             print("User found:", user)
@@ -39,6 +43,8 @@ async def create_user(user_id: str):
     except (BotoCoreError, ClientError) as e:
         print("Error fetching user:", e)
         return {"status": "error", "message": str(e)}
+    
+
 
 @app.post("/")
 async def create_user(user: UserCreate, response: Response):
