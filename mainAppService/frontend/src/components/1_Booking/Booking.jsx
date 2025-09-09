@@ -9,7 +9,8 @@ const userID = crypto.randomUUID();
 function Booking() {
   const [count, setCount] = useState(0);
   const [selectedDate, setSelectedDate] = useState();
-  const { bookings, bookAppointment } = useBookingConnection(userID);
+  const { bookings, bookAppointment, cancelAppointment } =
+    useBookingConnection(userID);
 
   return (
     <div className={styles.container}>
@@ -23,6 +24,7 @@ function Booking() {
             selectedDate={selectedDate}
             bookings={bookings}
             bookAppointment={bookAppointment}
+            cancelAppointment={cancelAppointment}
             userId={userID}
           />
         )}

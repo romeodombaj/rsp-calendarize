@@ -22,10 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-frontend_path = Path(__file__).parent / "frontend" / "dist"
 
-# serving static files
-app.mount("/assets", StaticFiles(directory=frontend_path / "assets"), name="assets")
 
 app.include_router(users_router, prefix="/api")
 
@@ -70,12 +67,7 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-
-            print("message received")
-            print(data)
-
-            parsed_data = json.loads(data) # convert string → dict
-            print(parsed_data["type"])  
+            parsed_data = json.loads(data)
 
             if parsed_data["type"] == "book":
                 print("This is new booking")
@@ -85,15 +77,64 @@ async def websocket_endpoint(websocket: WebSocket):
                     "booking_id": parsed_data["appointment_id"]
                 }
 
+                print(payload)
+
                 try:
-                    response = requests.put(f'{BOOKING_SERVICE_URL}book/', json=payload)
+                    response = requests.put(f'{BOOKING_SERVICE_URL}book', json=payload)
                     response.raise_for_status()
-                    print(response.json())
+                    
+                    parsedResponse = response.json()
+
+                    if parsedResponse["status"] == "error":
+                        await websocket.send_text(json.dumps({
+                            "type": "error",
+                            "message": parsedResponse.get("message", "Unknown error")
+                        }))
+                        continue
+
 
                     updateData = {
                         "booked_by": parsed_data["user_id"],
-                        "appointment_id":parsed_data["appointment_id"],
+                        "appointment_id": parsed_data["appointment_id"],
                         "type": "new_booking"
+                    }
+
+
+                    for client in clients:
+                        await client.send_text(json.dumps(updateData))
+
+                except requests.RequestException as e:
+                    print("Error fetching bookings:", e)
+
+            if parsed_data["type"] == "unbook":
+
+                payload = {
+                    "user_id": parsed_data["user_id"],
+                    "booking_id": parsed_data["appointment_id"]
+                }
+
+                try:
+                    response = requests.put(f'{BOOKING_SERVICE_URL}unbook', json=payload)
+                    response.raise_for_status()
+                    print("RESPONSE RECEIVED")
+
+                    parsedResponse = response.json()
+
+                    print(parsedResponse)
+                    print(parsedResponse["status"])
+                    print(parsedResponse["status"] == "error")
+
+                    if parsedResponse["status"] == "error":
+                        await websocket.send_text(json.dumps({
+                            "type": "error",
+                            "message": parsedResponse.get("message", "Unknown error")
+                        }))
+                        continue
+                    
+                    updateData = {
+                        "booked_by": None,
+                        "appointment_id": parsed_data["appointment_id"],
+                        "type": "canceled_booking"
                     }
 
                     for client in clients:
@@ -102,18 +143,18 @@ async def websocket_endpoint(websocket: WebSocket):
                 except requests.RequestException as e:
                     print("Error fetching bookings:", e)
 
+                
             
     except WebSocketDisconnect:
         clients.remove(websocket)
 
 
 
-#@app.get("/api/users")
-#async def get_users():
- #   response = users_table.scan()
-  #  return response.get("Items", [])
-
 # serving frontend
+frontend_path = Path(__file__).parent / "frontend" / "dist"
+
+app.mount("/assets", StaticFiles(directory=frontend_path / "assets"), name="assets")
+
 @app.get("/{path:path}")
 async def serve_react_app(path: str):
     index_file = frontend_path / "index.html"

@@ -49,11 +49,40 @@ async def book_appointment(booking: dict, response: Response):
     try:
         booking_table.update_item(
             Key={"id": booking["booking_id"]},
-            UpdateExpression="SET #s = :booked_by", 
-            ExpressionAttributeNames={"#s": "booked_by"},  
-            ExpressionAttributeValues={":booked_by": booking["user_id"]},
-            ReturnValues="UPDATED_NEW"  
+            UpdateExpression="SET #s = :booked_by",
+            ExpressionAttributeNames={"#s": "booked_by"},
+            ConditionExpression="attribute_not_exists(#s) OR #s = :null_val",
+            ExpressionAttributeValues={
+                ":booked_by": booking["user_id"],
+                ":null_val": None  
+            },
+            ReturnValues="UPDATED_NEW"
         )
+    except Exception as e:
+        print("Error updating user:", e)
+        return {"status": "error", "message": str(e)}
+
+    return {"status": "success"}
+
+
+@app.put("/unbook")
+async def book_appointment(booking: dict, response: Response):
+    print("IN Booking SERVICE")
+    print("UNBOOKING")
+
+    print(booking)
+    try:
+        booking_table.update_item(
+            Key={"id": booking["booking_id"]},
+            UpdateExpression="SET #s = :null_value",
+            ExpressionAttributeNames={"#s": "booked_by"},
+            ExpressionAttributeValues={
+                ":null_value": None,                 
+                ":expected_user": booking["user_id"]
+            },       
+            ConditionExpression="#s = :expected_user",   
+            ReturnValues="UPDATED_NEW"
+            )   
     except Exception as e:
         print("Error updating user:", e)
         return {"status": "error", "message": str(e)}

@@ -1,19 +1,17 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../store/AuthProvider";
 
-export default function useBookingConnection(userId = undefined) {
+export default function useBookingConnection() {
   const [ws, setWs] = useState(null);
   const [bookings, setBookings] = useState([]);
+  const { userId } = useAuth();
 
   useEffect(() => {
     if (userId) {
       const websocket = new WebSocket("ws://localhost:5000/api/ws");
 
       websocket.onmessage = (event) => {
-        console.log("ON MESSAGE TRIGGERED");
         const message = JSON.parse(event.data);
-
-        console.log("WEBSOCKER MESSAGE");
-        console.log(message);
 
         switch (message?.type) {
           case "all_bookings":
@@ -21,10 +19,25 @@ export default function useBookingConnection(userId = undefined) {
             break;
 
           case "new_booking":
+            console.log("MESSAGE");
+            console.log(message);
+
+            console.log(bookings);
+
             setBookings((prev) =>
               prev.map((booking) =>
                 booking.id === message.appointment_id
-                  ? { ...booking, booked_by: message.user_id }
+                  ? { ...booking, booked_by: message.booked_by }
+                  : booking
+              )
+            );
+            break;
+
+          case "canceled_booking":
+            setBookings((prev) =>
+              prev.map((booking) =>
+                booking.id === message.appointment_id
+                  ? { ...booking, booked_by: undefined }
                   : booking
               )
             );
@@ -60,5 +73,16 @@ export default function useBookingConnection(userId = undefined) {
       );
   };
 
-  return { bookings, sendMessage, bookAppointment };
+  const cancelAppointment = (appointment) => {
+    if (ws)
+      ws.send(
+        JSON.stringify({
+          type: "unbook",
+          user_id: userId,
+          appointment_id: appointment.id,
+        })
+      );
+  };
+
+  return { bookings, sendMessage, bookAppointment, cancelAppointment };
 }
