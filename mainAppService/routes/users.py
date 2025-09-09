@@ -1,7 +1,7 @@
 import requests
 from fastapi.responses import JSONResponse
 from fastapi import APIRouter, HTTPException, Request
-from models import UserCreate
+from models import OutputAuthenticate, InputCreateUser, OutputCreateUser
 import aiohttp
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -9,7 +9,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 USER_SERVICE_URL = "http://localhost:5001/users/"
 
 
-@router.get("/authenticate")
+@router.get("/authenticate", response_model=OutputAuthenticate)
 async def authenticate(request: Request):
     try:
         user_id = request.cookies.get("user_id")
@@ -22,30 +22,29 @@ async def authenticate(request: Request):
                 response.raise_for_status()
                 user_data = await response.json()
 
-
-        user_id = user_data.get("user", {}).get("id") 
+        user_id = user_data.get("id")
         
-        return {"status": "success", "user_id": user_id}
+        return OutputAuthenticate(user_id=user_id)
     
     except Exception as e:
             raise HTTPException(status_code=500, detail=str(e)) 
 
 
 
-@router.post("/")
-async def create_user(user: UserCreate):
+@router.post("/", response_model=OutputCreateUser)
+async def create_user(user: InputCreateUser):
     try:
-        response = requests.post(USER_SERVICE_URL, json=user.dict())
+        response = requests.post(USER_SERVICE_URL, json=user.model_dump())
         response.raise_for_status()
 
         async with aiohttp.ClientSession() as session:
-            async with session.post(USER_SERVICE_URL, json=user.dict()) as response:
+            async with session.post(USER_SERVICE_URL, json=user.model_dump()) as response:
                 response.raise_for_status()
                 user_data = await response.json()
     
-        user_id = user_data.get("user_id")
+        user_id = user_data.get("id")
 
-        resp = JSONResponse(content={"status": "success", "user": user_data})
+        resp = JSONResponse(content=OutputCreateUser(user_id=user_id).model_dump())
         
         resp.set_cookie(
             key="user_id",

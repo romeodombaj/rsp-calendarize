@@ -20,8 +20,8 @@ async def websocket_endpoint(websocket: WebSocket):
         async with aiohttp.ClientSession() as session:
                     async with session.get(BOOKING_SERVICE_URL) as response:
                         response.raise_for_status()
-                        data = await response.json() 
-                        future_bookings = data.get("appointments", [])
+                        data = await response.json()
+                        future_bookings = data.get("bookings", [])
 
             
     except Exception as e:
@@ -43,27 +43,18 @@ async def websocket_endpoint(websocket: WebSocket):
             if parsed_data["type"] == "book":
 
                 payload = {
+                    "booking_id": parsed_data["booking_id"],
                     "user_id": parsed_data["user_id"],
-                    "booking_id": parsed_data["appointment_id"]
                 }
 
                 try:
                     async with aiohttp.ClientSession() as session:
                         async with session.patch(f'{BOOKING_SERVICE_URL}book', json=payload) as response:
-                            response.raise_for_status()
-                            parsedResponse = await response.json()
-                    
-
-                    if parsedResponse["status"] == "error":
-                        await websocket.send_text(json.dumps({
-                            "type": "error",
-                            "message": parsedResponse.get("message", "Unknown error")
-                        }))
-                        continue
+                            response.raise_for_status()                    
                     
                     updateData = {
                         "booked_by": parsed_data["user_id"],
-                        "appointment_id": parsed_data["appointment_id"],
+                        "booking_id": parsed_data["booking_id"],
                         "type": "new_booking"
                     }
 
@@ -73,12 +64,13 @@ async def websocket_endpoint(websocket: WebSocket):
 
                 except Exception as e:
                     print("Error making a booking:", e)
+                    continue
 
             if parsed_data["type"] == "unbook":
 
                 payload = {
+                    "booking_id": parsed_data["booking_id"],
                     "user_id": parsed_data["user_id"],
-                    "booking_id": parsed_data["appointment_id"]
                 }
 
                 try:
@@ -87,18 +79,10 @@ async def websocket_endpoint(websocket: WebSocket):
                     async with aiohttp.ClientSession() as session:
                         async with session.patch(f'{BOOKING_SERVICE_URL}unbook', json=payload) as response:
                             response.raise_for_status()
-                            parsedResponse = await response.json()
 
-                    if parsedResponse["status"] == "error":
-                        await websocket.send_text(json.dumps({
-                            "type": "error",
-                            "message": parsedResponse.get("message", "Unknown error")
-                        }))
-                        continue
-                    
                     updateData = {
                         "booked_by": None,
-                        "appointment_id": parsed_data["appointment_id"],
+                        "booking_id": parsed_data["booking_id"],
                         "type": "canceled_booking"
                     }
 
@@ -107,6 +91,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
                 except Exception as e:
                     print("Error removing a booking:", e)
+                    continue
 
                 
             

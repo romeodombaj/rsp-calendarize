@@ -31,7 +31,7 @@ export default function useAuthUser() {
       console.log(result);
       console.log();
       if (result?.status === 200) {
-        setUserId(result.data.user.user_id);
+        setUserId(result.data.user_id);
         navigate("/");
       }
     } catch (err) {

@@ -1,12 +1,11 @@
 from fastapi import APIRouter, HTTPException
-from models import UserCreate
 from db import users_table
 from uuid import uuid4
-from models import UserCreate
+from models import InputCreateUser, OutputCreateUser, User
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-@router.get("/{user_id}")
+@router.get("/{user_id}", response_model=User)
 async def get_user(user_id: str):
     try:
         response = users_table.get_item(Key={"id": user_id})    
@@ -15,14 +14,14 @@ async def get_user(user_id: str):
         if not user:
             raise HTTPException(status_code=404, detail="User not found")    
         
-        return {"status": "success", "user": user}
+        return User(**user)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))    
 
 
-@router.post("/")
-async def create_user(user: UserCreate):
+@router.post("/", response_model=OutputCreateUser)
+async def create_user(user: InputCreateUser):
     try:
         user_id = str(uuid4())
 
@@ -34,7 +33,7 @@ async def create_user(user: UserCreate):
 
         users_table.put_item(Item=userRow)    
         
-        return {"user_id": user_id}
+        return OutputCreateUser(id=user_id)
 
     except Exception as e:
         print(str(e))

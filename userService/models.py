@@ -1,7 +1,17 @@
 from pydantic import BaseModel, EmailStr
-import uuid
 
-class UserCreate(BaseModel):
-    id: str = str(uuid.uuid4()) 
+
+class User(BaseModel):
+    id: str
     name: str
     email: EmailStr
+
+class InputCreateUser(BaseModel):
+    name: str
+    email: EmailStr
+
+class OutputCreateUser(BaseModel):
+    id: str
+
+
+

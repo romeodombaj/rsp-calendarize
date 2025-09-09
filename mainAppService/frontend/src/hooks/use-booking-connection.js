@@ -26,7 +26,7 @@ export default function useBookingConnection() {
 
             setBookings((prev) =>
               prev.map((booking) =>
-                booking.id === message.appointment_id
+                booking.id === message.booking_id
                   ? { ...booking, booked_by: message.booked_by }
                   : booking
               )
@@ -36,7 +36,7 @@ export default function useBookingConnection() {
           case "canceled_booking":
             setBookings((prev) =>
               prev.map((booking) =>
-                booking.id === message.appointment_id
+                booking.id === message.booking_id
                   ? { ...booking, booked_by: undefined }
                   : booking
               )
@@ -62,24 +62,24 @@ export default function useBookingConnection() {
     if (ws) ws.send(JSON.stringify({ id: userId, message }));
   };
 
-  const bookAppointment = (appointment) => {
+  const bookAppointment = (booking) => {
     if (ws)
       ws.send(
         JSON.stringify({
           type: "book",
           user_id: userId,
-          appointment_id: appointment.id,
+          booking_id: booking.id,
         })
       );
   };
 
-  const cancelAppointment = (appointment) => {
+  const cancelAppointment = (booking) => {
     if (ws)
       ws.send(
         JSON.stringify({
           type: "unbook",
           user_id: userId,
-          appointment_id: appointment.id,
+          booking_id: booking.id,
         })
       );
   };
