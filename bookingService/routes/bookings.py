@@ -5,10 +5,12 @@ from uuid import uuid4
 from datetime import datetime
 from boto3.dynamodb.conditions import Attr
 from models import Booking, BookingList, InputBookInfo
+import aiohttp
 
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
+EMAIL_SERVICE_URL = "http://localhost:5004"
 
 @router.get("/", response_model=BookingList)
 async def get_future_appointments():
@@ -22,7 +24,6 @@ async def get_future_appointments():
         future_appointments = response.get("Items", [])
 
         bookings = [Booking(**item) for item in future_appointments]
-
 
         return BookingList(bookings=bookings)
     
@@ -45,6 +46,27 @@ async def book_appointment(booking: InputBookInfo):
             },
             ReturnValues="UPDATED_NEW"
         )
+
+
+        # sending email
+
+        emailData = {
+            "user_id": booking.user_id,
+            "body": "Hello user, you have booked an appointment",
+            "referenceId": booking.booking_id,
+            "referenceType": "booking"
+        }
+
+        try:
+            print("WE ARE SENGIN AN EMAIL")
+            async with aiohttp.ClientSession() as session:
+                async with session.post(f"{EMAIL_SERVICE_URL}/emails/send", json=emailData) as response:
+                    response.raise_for_status()
+            
+        except Exception as e:
+            print("Error Sending Email:", e)
+
+        
 
         return
 
