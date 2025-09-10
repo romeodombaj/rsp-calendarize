@@ -8,6 +8,6 @@ dydb = boto3.resource(
     aws_secret_access_key="key"  
 )
 
-users_table = dydb.Table("users")
+notifications_table = dydb.Table("notifications")
 
 
