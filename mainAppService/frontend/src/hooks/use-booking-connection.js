@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../store/AuthProvider";
 
-export default function useBookingConnection() {
+export default function useBookingConnection({
+  notifications,
+  setNotifications,
+}) {
   const [ws, setWs] = useState(null);
   const [bookings, setBookings] = useState([]);
   const { userId } = useAuth();
@@ -15,7 +18,8 @@ export default function useBookingConnection() {
 
         switch (message?.type) {
           case "all_bookings":
-            setBookings(message.data);
+            setBookings(message.bookings);
+            setNotifications(message.notifications);
             break;
 
           case "new_booking":
@@ -45,7 +49,9 @@ export default function useBookingConnection() {
         }
       };
 
-      websocket.onopen = () => console.log("WEBSOCKET Connected");
+      websocket.onopen = () => {
+        console.log("WEBSOCKET CONNECTED ");
+      };
 
       setWs(websocket);
 

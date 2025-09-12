@@ -34,8 +34,6 @@ async def authenticate(request: Request):
 @router.post("/", response_model=OutputCreateUser)
 async def create_user(user: InputCreateUser):
     try:
-        response = requests.post(USER_SERVICE_URL, json=user.model_dump())
-        response.raise_for_status()
 
         async with aiohttp.ClientSession() as session:
             async with session.post(USER_SERVICE_URL, json=user.model_dump()) as response:

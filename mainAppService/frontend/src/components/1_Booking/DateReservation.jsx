@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { useAuth } from "../../store/AuthProvider";
 import styles from "./DateReservation.module.css";
 
 export default function DateReservation({
   selectedDate,
   bookings,
+  notifications,
+  createNotification,
+  cancelNotification,
   bookAppointment,
   cancelAppointment,
 }) {
@@ -37,6 +41,28 @@ export default function DateReservation({
 
         <div className={styles.list}>
           {(filteredBookings || []).map((el, i) => {
+            const notification = notifications.find(
+              (notification) => notification.booking_id === el.id
+            );
+
+            const [notificationCheckbox, setNotificationCheckbox] = useState(
+              notification ? true : false
+            );
+
+            const onNotificationCheckboxChange = async (e, booking) => {
+              const isChecked = e.target.checked;
+
+              if (isChecked) {
+                await createNotification(booking);
+              } else {
+                if (!notification) return;
+
+                await cancelNotification(notification);
+              }
+
+              setNotificationCheckbox(isChecked);
+            };
+
             return (
               <div
                 key={i}
@@ -47,18 +73,9 @@ export default function DateReservation({
                     : styles[`other-booked`])
                 }`}
                 onClick={() => {
-                  el.booked_by === userId
-                    ? cancelAppointment(el)
-                    : bookAppointment(el);
+                  !el.booked_by && bookAppointment(el);
                 }}
               >
-                <div className={styles[`appointment-book`]}>
-                  Book{" "}
-                  {new Date(el.date).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}{" "}
-                </div>
                 <div className={styles[`appointment-name`]}> {el.name}</div>
                 <div className={styles[`appointment-date`]}>
                   {new Date(el.date).toLocaleTimeString([], {
@@ -66,6 +83,34 @@ export default function DateReservation({
                     minute: "2-digit",
                   })}
                 </div>
+
+                {el.booked_by === userId ? (
+                  <div className={styles[`booked-actions`]}>
+                    <label className={styles[`check-notification`]}>
+                      <input
+                        type="checkbox"
+                        checked={notificationCheckbox}
+                        onChange={(e) => onNotificationCheckboxChange(e, el)}
+                      />
+                      Send Reminder
+                    </label>
+
+                    <button
+                      className={styles[`cancel-button`]}
+                      onClick={() => cancelAppointment(el)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <div className={styles[`appointment-book`]}>
+                    Book{" "}
+                    {new Date(el.date).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}{" "}
+                  </div>
+                )}
               </div>
             );
           })}

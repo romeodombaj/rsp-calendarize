@@ -7,31 +7,54 @@ router = APIRouter(prefix="/bookings", tags=["bookings"])
 
 
 BOOKING_SERVICE_URL = "http://localhost:5002/bookings/"
-
+NOTIFICATION_SERVICE_URL = "http://localhost:5003/notifications/user/"
 clients = []
 
 # bookings websocket connection 
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
 
+    user_id = websocket.cookies.get("user_id")
+
     await websocket.accept()
 
+    # getting all the bookings
     try:
         async with aiohttp.ClientSession() as session:
-                    async with session.get(BOOKING_SERVICE_URL) as response:
-                        response.raise_for_status()
-                        data = await response.json()
-                        future_bookings = data.get("bookings", [])
+            async with session.get(BOOKING_SERVICE_URL) as response:
+                response.raise_for_status()
+                data = await response.json()
+                future_bookings = data.get("bookings", [])
 
             
     except Exception as e:
         future_bookings = []
         print("Error fetching bookings:", e)
 
+    # getting all notifications of a user
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{NOTIFICATION_SERVICE_URL}{user_id}") as response:
+                response.raise_for_status()
+                notifications = await response.json()
+
+            
+    except Exception as e:
+        notifications = []
+        print("Error fetching bookings:", e)
+
+
+    
+    print("NOTIFICATIONS")
+    print(notifications)
+
     await websocket.send_text(json.dumps({
         "type": "all_bookings",
-        "data": future_bookings
+        "bookings": future_bookings,
+        "notifications": notifications,
     }))
+
+
         
     clients.append(websocket)
     

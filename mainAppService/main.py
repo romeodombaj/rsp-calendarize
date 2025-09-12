@@ -5,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 from routes.users import router as users_router
 from routes.bookings import router as bookings_router
+from routes.notifications import router as notifications_routes
+
 
 app = FastAPI()
 
@@ -21,6 +23,8 @@ app.add_middleware(
 
 app.include_router(users_router, prefix="/api")
 app.include_router(bookings_router, prefix="/api")
+app.include_router(notifications_routes, prefix="/api")
+
 
 
 # serving frontend

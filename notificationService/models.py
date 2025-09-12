@@ -1,16 +1,17 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from datetime import datetime
+from enum import Enum
 
 class InputCreateNotification(BaseModel):
     booking_id: str
     user_id: str
-    booking_time: datetime
+    booking_time: str
 
 class InputDeleteNotification(BaseModel):
     id: str
 
 
-class NotificationStatus(BaseModel):
+class NotificationStatus(str, Enum):
     SCHEDULED = "scheduled"
     NOTIFIED = "notified"
 
@@ -21,4 +22,6 @@ class Notification(BaseModel):
     status: NotificationStatus
     created_at: datetime
     run_time: datetime
+
+
 
