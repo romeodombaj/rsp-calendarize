@@ -5,9 +5,16 @@ import aiohttp
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
+import os
+from dotenv import load_dotenv
 
-BOOKING_SERVICE_URL = "http://localhost:5002/bookings/"
-NOTIFICATION_SERVICE_URL = "http://localhost:5003/notifications/user/"
+load_dotenv()
+
+
+
+
+BOOKING_SERVICE_URL = os.getenv("BOOKING_SERVICE_URL")
+NOTIFICATION_SERVICE_URL = os.getenv("NOTIFICATION_SERVICE_URL")
 clients = []
 
 # bookings websocket connection 
@@ -34,7 +41,7 @@ async def websocket_endpoint(websocket: WebSocket):
     # getting all notifications of a user
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(f"{NOTIFICATION_SERVICE_URL}{user_id}") as response:
+            async with session.get(f"{NOTIFICATION_SERVICE_URL}user/{user_id}") as response:
                 response.raise_for_status()
                 notifications = await response.json()
 

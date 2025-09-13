@@ -8,6 +8,14 @@ app = FastAPI()
 app.include_router(users_router)
 
 
+@app.get("/")
+async def intial():
+    print("THIS WORKS")
+
+    return "this works"
+
+
+
 
 
 

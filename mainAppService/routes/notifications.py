@@ -6,7 +6,13 @@ import aiohttp
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 
-NOTIFICATION_SERVICE_URL = "http://localhost:5003/notifications/"
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+NOTIFICATION_SERVICE_URL = os.getenv("NOTIFICATION_SERVICE_URL")
 
 @router.post("/")
 async def create_notification(inputData: InputCreateNotification):

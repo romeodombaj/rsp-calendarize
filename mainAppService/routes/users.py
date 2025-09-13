@@ -6,8 +6,14 @@ import aiohttp
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-USER_SERVICE_URL = "http://localhost:5001/users/"
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+USER_SERVICE_URL = os.getenv("USER_SERVICE_URL")
 
 @router.get("/authenticate", response_model=OutputAuthenticate)
 async def authenticate(request: Request):

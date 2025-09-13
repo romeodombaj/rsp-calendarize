@@ -22,9 +22,6 @@ export default function useNotificationsHandler() {
         booking_time: booking.date,
       });
 
-      console.log("THIS IS RESULT");
-      console.log(result);
-      console.log();
       if (result?.status === 200) {
         setNotifications((prev) => [
           ...prev,
@@ -51,5 +48,20 @@ export default function useNotificationsHandler() {
       const result = await axios.delete(`${base_url}${notification.id}`);
 
       if (result?.status === 200) {
-        //set 
+        setNotifications((prev) =>
+          prev.filter((el) => el.id !== notification.id)
+        );
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  return {
+    notifications,
+    setNotifications,
+    cancelNotification,
+    createNotification,
+    isLoading,
+  };
 }

@@ -1,0 +1,87 @@
+services:
+  userservice:
+    build: ./userService
+    container_name: userservice
+    ports:
+      - "5001:5001"
+    networks:
+      - app-network
+    environment:
+      DB_URL: http://dynamodb:8000
+
+  bookingservice:
+    build: ./bookingService
+    container_name: bookingservice
+    ports:
+      - "5002:5002"
+    networks:
+      - app-network
+    environment:
+      DB_URL: http://dynamodb:8000
+      EMAIL_SERVICE_URL: http://emailservice:5004
+
+  notificationservice:
+    build: ./notificationService
+    container_name: notificationservice
+    ports:
+      - "5003:5003"
+    networks:
+      - app-network
+    environment:
+      DB_URL: http://dynamodb:8000
+      EMAIL_SERVICE_URL: http://emailservice:5004
+
+  emailservice:
+    build: ./emailService
+    container_name: emailservice
+    ports:
+      - "5004:5004"
+    networks:
+      - app-network
+    environment:
+      DB_URL: http://dynamodb:8000
+      USER_SERVICE_URL: http://userservice:5001
+
+  mainappservice:
+    build: ./mainAppService
+    container_name: mainappservice
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+    environment:
+      USER_SERVICE_URL: http://userservice:5001/users/
+      BOOKING_SERVICE_URL: http://bookingservice:5002/bookings/
+      NOTIFICATION_SERVICE_URL: http://notificationservice:5003/notifications/
+
+  dynamodb:
+    image: amazon/dynamodb-local
+    container_name: dynamodb
+    ports:
+      - "8000:8000"
+    volumes:
+      - dynamodb-data:/home/dynamodblocal/data
+    networks:
+      - app-network
+
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin
+    container_name: dynamodb-admin
+    ports:
+      - "8001:8001"
+    environment:
+      - DYNAMO_ENDPOINT=http://dynamodb:8000
+      - AWS_ACCESS_KEY_ID=key
+      - AWS_SECRET_ACCESS_KEY=key
+      - AWS_REGION=us-east-1
+    depends_on:
+      - dynamodb
+    networks:
+      - app-network
+
+volumes:
+  dynamodb-data:
+
+networks:
+  app-network:
+    driver: bridge

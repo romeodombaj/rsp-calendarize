@@ -5,16 +5,19 @@ from models import InputEmailSend, EmailLog
 from datetime import datetime
 import aiohttp
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+
 
 router = APIRouter(prefix="/emails", tags=["emails"])
 
-USER_SERVICE_URL = "http://localhost:5001"
+USER_SERVICE_URL = os.getenv("USER_SERVICE_URL")
 
 @router.post("/send")
 async def send_email(emailData: InputEmailSend):
     try:
-
-
         async with aiohttp.ClientSession() as session:
             async with session.get(f"{USER_SERVICE_URL}/users/{emailData.user_id}") as response:
                 response.raise_for_status()
@@ -23,7 +26,6 @@ async def send_email(emailData: InputEmailSend):
                 if not user:
                     raise HTTPException(status_code=404, detail=str(e))  
 
-        
 
         email_id = str(uuid4())
         email = user.get("email")  
@@ -55,6 +57,7 @@ async def send_email(emailData: InputEmailSend):
         return
 
     except Exception as e:
+        print(e)
         print(str(e))
         raise HTTPException(status_code=500, detail=str(e))
 

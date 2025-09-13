@@ -9,7 +9,6 @@ from boto3.dynamodb.conditions import Key
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 
 
-
 @router.get("/user/{user_id}")
 async def get_notifications_by_user_id(user_id: str):
     try:

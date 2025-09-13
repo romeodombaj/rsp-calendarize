@@ -7,10 +7,15 @@ from boto3.dynamodb.conditions import Attr
 from models import Booking, BookingList, InputBookInfo
 import aiohttp
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
-EMAIL_SERVICE_URL = "http://localhost:5004"
+EMAIL_SERVICE_URL = os.getenv("EMAIL_SERVICE_URL")
 
 @router.get("/", response_model=BookingList)
 async def get_future_appointments():
