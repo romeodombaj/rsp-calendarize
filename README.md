@@ -3,7 +3,7 @@
 -   Nositelj: doc. dr. sc. Nikola Tanković
 -   Asistent: mag. inf. Luka Blašković
 -   Kolegij: Raspodijeljeni sustavi
--   Studij: Diplomski stduij Računarstva
+-   Studij: Diplomski studij Računarstva
 -   Student: Romeo Dombaj
 
 ----------
