@@ -12,8 +12,6 @@
 
 Calendarize je web aplikacija koja služi kao alat za rezerviranje termina. Nakon što admin izradi svoje termine, korisnici uz pomoć imena i emaila mogu rezervirati iste termine. Zadatak je bio stvoriti distributivni sustav, što ova aplikacija i prikazuje na način da povezuje više samostalnih mikroservisa koji se mogu skalirati ovisno o potrebama.
 
-Aplikacija demonstrira kako se pomoću arhitekture mikroservisa može izgraditi skalabilan i fleksibilan sustav za rezervaciju termina. Korištenjem modernih tehnologija poput FastAPI-ja za backend, Reacta za frontend, DynamoDB-a za bazu podataka te NGINX-a kao reverse proxyja postignuta je modularnost i jednostavnije održavanje aplikacije.
-
 
 ## Tehnologije
 
