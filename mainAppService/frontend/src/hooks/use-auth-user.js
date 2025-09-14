@@ -3,7 +3,7 @@ import { useAuth } from "../store/AuthProvider";
 import { useState } from "react";
 import axios from "axios";
 
-const base_url = "http://localhost:5000/api/users/";
+const base_url = "/api/users/";
 
 export default function useAuthUser() {
   const navigate = useNavigate();
@@ -27,9 +27,6 @@ export default function useAuthUser() {
         }
       );
 
-      console.log("THIS IS RESULT");
-      console.log(result);
-      console.log();
       if (result?.status === 200) {
         setUserId(result.data.user_id);
         navigate("/");

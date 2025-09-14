@@ -11,7 +11,7 @@ export const useAuth = () => {
   return useContext(AuthContext);
 };
 
-const base_url = "http://localhost:5000/api/users/";
+const base_url = "/api/users/";
 
 export const AuthProvider = ({ children }) => {
   const [userId, setUserId] = useState(null);

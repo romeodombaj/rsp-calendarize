@@ -6,7 +6,9 @@ app = FastAPI()
 app.include_router(emails_router)
 
 
-
+@app.get("/")
+async def intial():
+    return "Reached Email Service"
 
 
 

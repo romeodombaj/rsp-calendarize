@@ -25,6 +25,10 @@ def shutdown_scheduler():
     scheduler.shutdown()
 
 
+@app.get("/")
+async def intial():
+    return "Reached Notification Service"
+
 
     
 

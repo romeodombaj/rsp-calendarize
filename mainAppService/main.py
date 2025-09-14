@@ -36,3 +36,5 @@ app.mount("/assets", StaticFiles(directory=frontend_path / "assets"), name="asse
 async def serve_react_app(path: str):
     index_file = frontend_path / "index.html"
     return FileResponse(index_file)
+
+

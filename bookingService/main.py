@@ -16,5 +16,7 @@ app = FastAPI()
 app.include_router(bookings_router)
 
 
-
+@app.get("/")
+async def intial():
+    return "Reached Booking Service"
 

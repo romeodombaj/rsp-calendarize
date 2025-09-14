@@ -11,7 +11,7 @@ export default function useBookingConnection({
 
   useEffect(() => {
     if (userId) {
-      const websocket = new WebSocket("ws://localhost:5000/api/bookings/ws");
+      const websocket = new WebSocket(`ws://localhost:5000/api/bookings/ws`);
 
       websocket.onmessage = (event) => {
         const message = JSON.parse(event.data);
